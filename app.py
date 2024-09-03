@@ -14,12 +14,14 @@ class  Cards(db.Model):
     __name__ = 'Cards'
     id =  db.Column(db.Integer,primary_key=True,autoincrement=True)
     tema= db.Column(db.String(30))
+    sub_tema= db.Column(db.String(30))
     resumo= db.Column(db.String(100))
     link1= db.Column(db.String(30))
 
  
-    def __init__(self,tema,resumo,link1):
+    def __init__(self,tema,sub_tema,resumo,link1):
         self.tema= tema
+        self.sub_tema = sub_tema
         self.resumo = resumo
         self.link1 = link1
 
@@ -42,13 +44,16 @@ def buscar():
     if request.method =='POST':
         print('post')
         tema = request.form['tema']
+        tema = tema.replace(' ','_')
         if tema != None:
-            busca = wiki.search(tema)
+            wiki.set_lang('Pt')
+            busca = wiki.search(f'{tema}')
             page = wiki.page(busca[0])
+            sub_tema = page.title
             link = page.url
             resumo = page.summary
             #item para banco de dados
-            add_new = Cards(tema,resumo,link)
+            add_new = Cards(tema,sub_tema,resumo,link)
         try:
             db.session.add(add_new)
             db.session.commit()
